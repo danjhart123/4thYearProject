@@ -82,6 +82,7 @@ public class UserRepo extends SQLiteOpenHelper {
 
 
 
+
     public ArrayList loadUsers(){
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -114,6 +115,19 @@ public class UserRepo extends SQLiteOpenHelper {
             }
         }
         return match;
+    }
+
+    public boolean registerCheck(String email){
+        ArrayList<User> userList = loadUsers();
+        boolean accountExists = false;
+        for(User elem : userList) {
+            if((elem.getEmail().matches(email))){
+                accountExists = true;
+            } else{
+                accountExists = false;
+            }
+        }
+        return accountExists;
     }
 
 }
