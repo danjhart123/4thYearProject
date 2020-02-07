@@ -41,6 +41,7 @@ public class UserRepo extends SQLiteOpenHelper {
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USERS;
 
 
+
     public UserRepo(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -71,6 +72,20 @@ public class UserRepo extends SQLiteOpenHelper {
 
         db.insert(TABLE_USERS, null, userValues);
         db.close();
+
+    }
+
+    public void updatePassword(User user){
+        ContentValues userValues = new ContentValues();
+        userValues.put(USER_ID, user.getUserID());
+        userValues.put(USER_EMAIL, user.getEmail());
+        userValues.put(USER_PASSWORD, user.getPassword());
+        userValues.put(USER_SECURITY_QUESTION, user.getSecurityQuestion());
+        userValues.put(IS_ADMIN, user.getIsAdmin());
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.update(TABLE_USERS, userValues ,   "user_id=?", new String[] {String.valueOf(user.getUserID())});
     }
 
     public void getAllUsers(){
@@ -119,6 +134,21 @@ public class UserRepo extends SQLiteOpenHelper {
         }
         return match;
     }
+
+    public boolean resetCheck(String email, String securityAnswer) {
+        boolean credentialCheck = false;
+        ArrayList<User> userList = loadUsers();
+        for (User elem : userList) {
+            if ((elem.getEmail().matches(email)) && (elem.getSecurityQuestion().matches(securityAnswer))) {
+                credentialCheck = true;
+            } else {
+                credentialCheck = false;
+            }
+        }
+        System.out.println("HELOFDSAOGSFDG = " + credentialCheck);
+        return credentialCheck;
+    }
+
 
     public boolean registerCheck(String email){
         ArrayList<User> userList = loadUsers();

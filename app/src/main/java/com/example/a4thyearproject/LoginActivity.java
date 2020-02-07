@@ -31,6 +31,11 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(registerIntent);
     }
 
+    public void resetBtnClick(View view){
+        Intent resetIntent = new Intent(this, passwordReset.class);
+        startActivity(resetIntent);
+    }
+
     public void userBtnClick(View view){
 
         db.getAllUsers();
