@@ -27,6 +27,7 @@ public class UserRepo extends SQLiteOpenHelper {
     private static final String USER_ID = "user_id";
     private static final String USER_EMAIL = "user_email";
     private static final String USER_PASSWORD = "user_password";
+    private static final String USER_SECURITY_QUESTION = "user_security_question";
     private static final String IS_ADMIN = "is_admin";
 
 
@@ -34,7 +35,7 @@ public class UserRepo extends SQLiteOpenHelper {
     // create table sql query
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USERS + "("
             + USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + USER_EMAIL +
-            " TEXT," + USER_PASSWORD + " TEXT," + IS_ADMIN + " INT" + ")";
+            " TEXT," + USER_PASSWORD + " TEXT," + USER_SECURITY_QUESTION + " TEXT," + IS_ADMIN + " INT" + ")";
 
     // drop table sql query
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USERS;
@@ -65,7 +66,8 @@ public class UserRepo extends SQLiteOpenHelper {
         ContentValues userValues = new ContentValues();
         userValues.put(USER_EMAIL, user.getEmail());
         userValues.put(USER_PASSWORD, user.getPassword());
-        userValues.put(IS_ADMIN, user.isAdmin());
+        userValues.put(USER_SECURITY_QUESTION, user.getSecurityQuestion());
+        userValues.put(IS_ADMIN, user.getIsAdmin());
 
         db.insert(TABLE_USERS, null, userValues);
         db.close();
@@ -94,9 +96,10 @@ public class UserRepo extends SQLiteOpenHelper {
                 int id = c.getInt(c.getColumnIndex(USER_ID));
                 String email = c.getString(c.getColumnIndex(USER_EMAIL));
                 String password = c.getString(c.getColumnIndex(USER_PASSWORD));
+                String securityQuestion = c.getString(c.getColumnIndex(USER_SECURITY_QUESTION));
                 int admin = c.getInt(c.getColumnIndex(IS_ADMIN));
 
-                User newUser = new User(id,email,password,admin);
+                User newUser = new User(id,email,password,securityQuestion,admin);
                 userList.add(newUser);
             } while (c.moveToNext());
         }
