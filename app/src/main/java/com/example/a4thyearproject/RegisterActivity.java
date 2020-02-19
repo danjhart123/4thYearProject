@@ -3,6 +3,7 @@ package com.example.a4thyearproject;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.widget.EditText;
@@ -10,17 +11,25 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+
+    FirebaseAuth userAuth;
     private EditText emailInput;
     private EditText passwordInput;
     private EditText confirmPasswordInput;
     private EditText securityQuestionInput;
-    private String emailInfo;
-    private String passwordInfo;
-    private String confirmPasswordInfo;
-    private String securityQuestionInfo;
+    private String email;
+    private String password;
+    private String confirmPassword;
+    private String securityQuestion;
     private RadioGroup registerRadioGroup;
     private RadioButton adminRadio;
     private RadioButton memberRadio;
@@ -28,6 +37,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private int userAccountChoice;
 
 
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        FirebaseUser currentUser = userAuth.getCurrentUser();
+        if(currentUser != null) {
+            System.out.println(currentUser.toString());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,23 +60,39 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         passwordInput = findViewById(R.id.registerPassword);
         securityQuestionInput = findViewById(R.id.securityQuestionInput);
         confirmPasswordInput = findViewById(R.id.reenterPassword);
+        userAuth = FirebaseAuth.getInstance();
+
     }
 
     public void registerUser(View view){
-        emailInfo = String.valueOf(emailInput.getText());
-        passwordInfo = String.valueOf(passwordInput.getText());
-        confirmPasswordInfo = String.valueOf(confirmPasswordInput.getText());
-        securityQuestionInfo = String.valueOf(securityQuestionInput.getText());
+        email = String.valueOf(emailInput.getText());
+        password = String.valueOf(passwordInput.getText());
+        confirmPassword = String.valueOf(confirmPasswordInput.getText());
+        securityQuestion = String.valueOf(securityQuestionInput.getText());
 
-        if((validateEmail(emailInfo)) && (!checkDuplicateAccount(emailInfo)) && (passwordInfo.equals(confirmPasswordInfo))) {
-            User newUser = new User(emailInfo, passwordInfo, securityQuestionInfo, userAccountChoice);
-            db.addUser(newUser);
-            Toast.makeText(this, newUser.toString(), Toast.LENGTH_LONG).show();
+        email = emailInput.getText().toString();
+        password = passwordInput.getText().toString();
+
+        if(password.matches(confirmPassword)) {
+            userAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(RegisterActivity.this, "Success",
+                                        Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+
         } else{
-            Toast.makeText(this, "Invalid email or password", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this, "Passwords do not match",
+                    Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     @Override
